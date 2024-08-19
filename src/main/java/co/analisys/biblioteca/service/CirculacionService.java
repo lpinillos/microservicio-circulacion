@@ -7,6 +7,8 @@ import co.analisys.biblioteca.model.*;
 import co.analisys.biblioteca.repository.PrestamoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,7 +38,14 @@ public class CirculacionService {
             );
             prestamoRepository.save(prestamo);
 
-            restTemplate.put("http://localhost:8082/libros/" + libroId.getLibroid_value() + "/disponibilidad", false);
+            // Actualizar disponibilidad
+            HttpEntity<Boolean> requestEntity = new HttpEntity<>(false);
+            restTemplate.exchange(
+                    "http://localhost:8082" + "/libros/" + libroId.getLibroid_value() + "/disponibilidad",
+                    HttpMethod.PUT,
+                    requestEntity,
+                    Void.class
+            );
 
             restTemplate.postForObject(
                     "http://localhost:8084/notificar",
